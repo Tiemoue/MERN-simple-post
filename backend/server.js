@@ -18,7 +18,7 @@ const options = {
 };
 // mongodb+srv://<username>:<password>@cluster0.6vk0qgz.mongodb.net/?retryWrites=true&w=majority
 // You guys need to replace with your own server url and correct <username> and <password>
-const dbUrl = `mongodb://localhost:27017`;
+const dbUrl = `mongodb+srv://Collins:qLPkycGs5Ja7TvP8@cluster0.hscrqql.mongodb.net/?retryWrites=true&w=majority`;
 
 // Mongo DB connection
 mongoose.connect(dbUrl, options, (err) => {
@@ -32,59 +32,34 @@ db.once("open", function () {
     console.log("Mongo DB Connected successfully");
 });
 
-// Schema for Book
+// Schema for Post
 let Schema = mongoose.Schema;
-let bookSchema = new Schema(
-    {
-        id: {
-            type: Number,
-        },
-        title: {
-            type: String,
-        },
-        description: {
-            type: String,
-        },
-        author: {
-            type: String,
-        },
-        img: {
-            type: String,
-        },
-        status: {
-            type: String,
-        }
-    },
-    { timestamps: true }
+
+let postSchema = new Schema({
+                post: {
+                    type: String,
+                },
+}, { timestamps: true }
+
 );
-let BookModel = mongoose.model("book", bookSchema);
+let postModel = mongoose.model("post", postSchema);
 
 
 // Mock Data : We will stop using this static data and will add and remove data from DB itself
 let myMockDB = [
     {
         id: 1,
-        title: 'Rich Dad Poor Dad',
-        author: 'Robert Kiyosaki',
-        description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, voluptatibus corporis! Deserunt doloribus unde magnam, iusto officia cum commodi praesentium?',
-        img: 'https://m.media-amazon.com/images/I/51AHZGhzZEL.jpg',
-        status: 'todo'
+        post: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, voluptatibus corporis! Deserunt doloribus unde magnam, iusto officia cum commodi praesentium?',
     },
     {
         id: 2,
-        title: 'Rework',
-        author: 'Jason Fried',
-        description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, voluptatibus corporis! Deserunt doloribus unde magnam, iusto officia cum commodi praesentium?',
-        img: 'https://m.media-amazon.com/images/P/0307463745.01._SCLZZZZZZZ_SX500_.jpg',
-        status: 'inprogress'
+        post: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, voluptatibus corporis! Deserunt doloribus unde magnam, iusto officia cum commodi praesentium?',
+  
     },
     {
         id: 2,
-        title: 'When Breath Becomes Air',
-        author: 'Paul Kalanithi',
-        description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, voluptatibus corporis! Deserunt doloribus unde magnam, iusto officia cum commodi praesentium?',
-        img: 'https://images-na.ssl-images-amazon.com/images/I/71dxZ1Z10xL.jpg',
-        status: 'inprogress'
+        post: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, voluptatibus corporis! Deserunt doloribus unde magnam, iusto officia cum commodi praesentium?',
+
     }
 ]
 
@@ -94,10 +69,10 @@ app.get('/', (req, res) => {
 
 
 
-/** GET API: GETs Books from DB and returns as response */
-app.get('/books', async (req, res) => {
+/** GET API: GETs posts from DB and returns as response */
+app.get('/posts', async (req, res) => {
     try {
-        let posts = await BookModel.find();
+        let posts = await postModel.find();
         res.status(200).json({
             status: 200,
             data: posts,
@@ -111,20 +86,24 @@ app.get('/books', async (req, res) => {
 });
 
 
-/** POST API: Gets new book info from React and adds it to DB */
-app.post('/books', async (req, res) => {
-    const inputBook = req.body;
-    console.log(inputBook);
-    const matchingBooks = myMockDB.filter(book => book.id === inputBook.id).length;
-    if (matchingBooks) {
+
+ /** POST API: Gets new post info from React and adds it to DB */
+
+
+/** POST API: Gets new post info from React and adds it to DB */
+app.post('/addpost', async (req, res) => {
+    const inputpost = req.body;
+    console.log(inputpost);
+    const matchingposts = myMockDB.filter(post => post.id === inputpost.id).length;
+    if (matchingposts) {
         res.status(500);
-        console.error(`Book with id:${inputBook.id} already exists`);
+        console.error(`post with id:${inputpost.id} already exists`);
     } else {
         myMockDB.push(req.body);
     }
     try {
-        console.log('input Book:', inputBook);
-        let post = new BookModel(inputBook);
+        console.log('input post:', inputpost);
+        let post = new postModel(inputpost);
         post = await post.save();
         res.status(200).json({
             status: 200,
@@ -139,27 +118,27 @@ app.post('/books', async (req, res) => {
 });
 
 
-app.put("/books/:bookId", async (req, res) => {
+app.put("/posts/:postId", async (req, res) => {
     try {
-        console.log('PUT request..:' + req.params.bookId);
-        let newBook = req.body;
-        console.log(JSON.stringify('Req body:', JSON.stringify(newBook)));
+        console.log('PUT request..:' + req.params.postId);
+        let newpost = req.body;
+        console.log(JSON.stringify('Req body:', JSON.stringify(newpost)));
         /** There is BUG, Data is not getting updated in DB for me */
-        let book = await BookModel.findByIdAndUpdate({ _id: req.params.bookId }, req.body, {
+        let post = await postModel.findByIdAndUpdate({ _id: req.params.postId }, req.body, {
             new: true,
         }).catch((err) => {
             console.error('Error-----------------', err);
         });
-        if (book) {
-            console.log(JSON.stringify(book));
+        if (post) {
+            console.log(JSON.stringify(post));
             res.status(200).json({
                 status: 200,
-                data: book,
+                data: post,
             });
         }
         res.status(400).json({
             status: 400,
-            message: "No Book found",
+            message: "No post found",
         });
     } catch (err) {
         res.status(400).json({
@@ -170,23 +149,23 @@ app.put("/books/:bookId", async (req, res) => {
 });
 
 
-/** DELETE API: Gets ID of the book to be deleted from React and deletes the book in db. 
- * Sends 400 if there is no book with given id
+/** DELETE API: Gets ID of the post to be deleted from React and deletes the post in db. 
+ * Sends 400 if there is no post with given id
  * Sends 500 if there is an error while saving data to DB
  * Sends 200 if deleted successfully
  */
-app.delete("/books/:bookId", async (req, res) => {
+app.delete("/posts/:postId", async (req, res) => {
     try {
-        let book = await BookModel.findByIdAndRemove(req.params.bookId);
-        if (book) {
+        let post = await postModel.findByIdAndRemove(req.params.postId);
+        if (post) {
             res.status(200).json({
                 status: 200,
-                message: "Book deleted successfully",
+                message: "post deleted successfully",
             });
         } else {
             res.status(400).json({
                 status: 400,
-                message: "No Book found",
+                message: "No post found",
             });
         }
     } catch (err) {
@@ -197,10 +176,10 @@ app.delete("/books/:bookId", async (req, res) => {
     }
 });
 
-app.get('/loadSampleBooks', async (req, res) => {
+app.get('/loadSamplePosts', async (req, res) => {
     try {
-        myMockDB.forEach(async (bookIn) => {
-            let post = new BookModel(bookIn);
+        myMockDB.forEach(async (postIn) => {
+            let post = new postModel(postIn);
             post = await post.save();
         });
         res.status(200).json({
