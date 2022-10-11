@@ -18,7 +18,7 @@ const options = {
 };
 // mongodb+srv://<username>:<password>@cluster0.6vk0qgz.mongodb.net/?retryWrites=true&w=majority
 // You guys need to replace with your own server url and correct <username> and <password>
-const dbUrl = `mongodb+srv://Collins:qLPkycGs5Ja7TvP8@cluster0.hscrqql.mongodb.net/?retryWrites=true&w=majority`;
+const dbUrl = // mongodb+srv://<username>:<password>@cluster0.6vk0qgz.mongodb.net/?retryWrites=true&w=majority;
 
 // Mongo DB connection
 mongoose.connect(dbUrl, options, (err) => {
