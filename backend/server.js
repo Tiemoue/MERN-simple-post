@@ -72,7 +72,7 @@ app.get('/', (req, res) => {
 /** GET API: GETs posts from DB and returns as response */
 app.get('/posts', async (req, res) => {
     try {
-        let posts = await postModel.find();
+        let posts = await postModel.find().sort({createdAt: -1});
         res.status(200).json({
             status: 200,
             data: posts,
